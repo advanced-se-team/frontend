@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.shadow-cs {
+  @apply shadow-[0_2px_5px_-1px_rgba(0,0,0,0.05),0_2px_4px_-2px_rgba(0,0,0,0.05)] /* shadow-green-100
+*/;
+}
+.shadow-card {
+  @apply shadow-[0_2px_5px_-1px_rgba(0,0,0,0.05),0_2px_4px_-2px_rgba(0,0,0,0.05)];
+}
+.shadow-card:hover {
+  --tw-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
+    0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+.rounded-cs {
+  @apply rounded-[10px];
+}
+
+.text-serif {
+  font-family: 'Source Han Serif CN Heavy', serif;
+}
+
+.text-regular-serif {
+    font-family: 'Source Han Serif CN Bold', serif;
+}
+
+.text-sans {
+  font-family: 'MiSans',sans-serif;
+}
+
+@font-face {
+  font-family: 'Digiface';
+  src: url('https://cdn.puluter.cn/f/fonts/digiface.ttf');
+}
+
+.a {}

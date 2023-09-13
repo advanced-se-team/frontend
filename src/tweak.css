@@ -1,0 +1,26 @@
+.t-input__inner:focus {
+    --tw-ring-shadow: none !important;
+    @apply select-none;
+}
+.t-input--focused {
+    box-shadow: none !important;
+}
+.t-input {
+    @apply shadow-sm;
+}
+
+.t-collapse .t--border-less .t-collapse-panel__body {
+    border-radius: 0.375rem !important;
+}
+
+
+.t-collapse {
+    background: none !important;
+}
+
+.t-collapse .t--border-less{
+    background: none !important;
+}
+.t-collapse-panel__wrapper {
+    @apply p-1
+}
