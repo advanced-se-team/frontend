@@ -44,6 +44,7 @@ const loginViaWechat = async () => {
 
     await AV.User.current().fetch();
   } catch (e) {
+    console.log(e)
     router.push('/auth/login?retry=1');
   }
 

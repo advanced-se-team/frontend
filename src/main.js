@@ -15,6 +15,7 @@ import './theme.css';
 import './tweak.css';
 
 import 'video.js/dist/video-js.css';
+import 'md-editor-v3/lib/preview.css';
 
 const routes = setupLayouts(generatedRoutes);
 

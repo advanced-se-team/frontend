@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex select-none flex-col justify-start bg-gray-100 min-h-[100vh]"
+    class="flex select-none flex-col justify-start bg-gray-100 min-h-[100vh] max-h-[100vh]"
   >
     <div class="block min-h-16">
       <Disclosure

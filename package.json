@@ -3,13 +3,15 @@
     "license": "MIT",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "vite build && yarn move-static",
+        "move-static": "cp -a ./node_modules/@pdftron/webviewer/public/. ./public/webviewer",
         "serve": "vite preview",
         "up": "taze major -I"
     },
     "dependencies": {
         "@headlessui/vue": "^1.7.14",
         "@heroicons/vue": "^2.0.18",
+        "@pdftron/webviewer": "^10.6.0",
         "@sentry/vite-plugin": "^2.7.0",
         "@sentry/vue": "^7.66.0",
         "@tailwindcss/forms": "^0.5.4",
@@ -24,6 +26,7 @@
         "jsencrypt": "^3.3.2",
         "leancloud-storage": "^4.15.0",
         "lodash-es": "^4.17.21",
+        "md-editor-v3": "^4.11.0",
         "nanoid": "^4.0.2",
         "pinia": "^2.0.27",
         "pinia-persistedstate-plugin": "^0.1.0",

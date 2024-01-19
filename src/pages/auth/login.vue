@@ -33,8 +33,8 @@ onMounted(() => {
   if (AV.User.current()) {
     router.push('/');
   } else {
-    const loginDomain = import.meta.env.DEV ? 'http://localhost:5173' : 'https://puluter.cn';
-    const callbackDomain = import.meta.env.DEV ? 'http://localhost:8008' : 'https://ucas.puluter.cn';
+    const loginDomain = 'https://puluter.cn';
+    const callbackDomain = 'http://'+window.location.host;
 
     let callback = callbackDomain+'/auth/wechatCallback';
     window.location.href = loginDomain+'/auth/login?re=1&redirectTo='+encodeURIComponent(callback);

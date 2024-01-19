@@ -229,6 +229,14 @@ const editName = ref('我的辩论赛');
 
 const navigation = ref([
   {
+    name: '读读论文',
+    href: '/pdf',
+    current: false,
+    iconId: 0,
+    icon: HomeIcon,
+    iconSolid: HomeSolid,
+  },
+  {
     name: '个人课表',
     href: '/',
     current: true,
@@ -236,14 +244,14 @@ const navigation = ref([
     icon: HomeIcon,
     iconSolid: HomeSolid,
   },
-  // {
-  //   name: '多人课表比对',
-  //   href: '/compare',
-  //   current: false,
-  //   iconId: 1,
-  //   icon: Squares2X2Icon,
-  //   iconSolid: Square2X2Solid,
-  // },
+  {
+    name: '多人对比课表',
+    href: '/compare',
+    current: false,
+    iconId: 1,
+    icon: Squares2X2Icon,
+    iconSolid: Square2X2Solid,
+  },
 ]);
 
 const userNavigation = reactive({
@@ -272,7 +280,9 @@ const refreshNavbar = () => {
     const item1 = cloneDeep(item);
 
     item1.current = route.path.startsWith(item1.href);
-    if (route.path.startsWith('/edit') && item1.href === '/mine') item1.current = true;
+    if(route.path.length>1 && item1.href === '/') {
+      item1.current = false;
+    }
 
     return item1;
   });

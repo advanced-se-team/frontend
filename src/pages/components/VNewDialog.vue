@@ -22,9 +22,8 @@ const emit = defineEmits(['submit', 'close']);
 
 const basicInfo = reactive({
   data: {
-    name: '',
-    founderName: '',
-    monthRange: [],
+    reason: '',
+    week: ''
   },
 });
 
@@ -39,30 +38,15 @@ watch(props, () => {
 const createForm = ref(null);
 
 const rules = reactive({
-  name: [
+  reason: [
     {
-      required: true, message: '赛事名必填', type: 'error', trigger: 'blur',
-    },
-    {
-      validator: (val) => val.length >= 5, message: '名称过短！', type: 'error', trigger: 'blur',
-    },
-    {
-      validator: (val) => toString(toNumber(val)) !== val, message: '请勿输入纯数字！', type: 'error', trigger: 'blur',
+      required: true, message: '事由必填', type: 'error', trigger: 'blur',
     },
   ],
-  founderName: [
+  week: [
     {
-      required: true, message: '主办方必填', type: 'error', trigger: 'blur',
+      required: true, message: '周次必填', type: 'error', trigger: 'blur',
     },
-    {
-      validator: (val) => val.length >= 3, message: '名称过短！', type: 'error', trigger: 'blur',
-    },
-    {
-      validator: (val) => toString(toNumber(val)) !== val, message: '请勿输入纯数字！', type: 'error', trigger: 'blur',
-    },
-  ],
-  monthRange: [
-    { required: true, message: '赛事举办周期必填', type: 'error' },
   ],
 });
 
@@ -70,7 +54,6 @@ const isDisabled = ref(false);
 
 const formSubmit = useThrottleFn((value) => {
   if (value.validateResult === true) {
-    console.log(basicInfo);
     emit('submit', basicInfo.data);
     isDisabled.value = true;
   } else {
@@ -126,16 +109,13 @@ const formSubmit = useThrottleFn((value) => {
                   as="h1"
                   class="text-xl leading-6 text-gray-900 text-serif"
                 >
-                  创建赛事
+                  创建对比
                 </DialogTitle>
                 <div class="mt-2 text-sm text-gray-500">
-                  录入赛事基础信息
+                  发起一个对比
                 </div>
               </div>
               <!-- !🖥 -->
-              <div class="p-2 text-center shadow-inner bg-gray-100 rounded-md">
-                提示：您也可以在“我的辩论赛”页面中修改您此前创建的赛事
-              </div>
               <div
                 class="pt-6"
               >
@@ -144,59 +124,26 @@ const formSubmit = useThrottleFn((value) => {
                        :rules="rules"
                        @submit="formSubmit"
                 >
-                  <TFormItem label="赛事名称"
-                             name="name"
+                  <TFormItem label="对比事由"
+                             name="reason"
                   >
                     <TInput
-                      id="competition"
-                      v-model="basicInfo.data.name"
-                      aria-describedby="competition-description"
-                      name="competition"
-                      placeholder="XX大学 第X届 XX辩论赛"
+                      id="reason"
+                      v-model="basicInfo.data.reason"
+                      name="reason"
+                      placeholder="...会议"
                       type="text"
                     />
                   </TFormItem>
-                  <TFormItem label="赛事主办方"
-                             name="founderName"
+                  <TFormItem label="对比周次"
+                             name="week"
                   >
                     <TInput
-                      id="competition"
-                      v-model="basicInfo.data.founderName"
-                      aria-describedby="competition-description"
-                      name="competition"
-                      placeholder="共青团XXXX大学委员会"
-                      type="text"
+                      id="week"
+                      v-model="basicInfo.data.week"
+                      name="week"
+                      type="number"
                     />
-                  </TFormItem>
-                  <TFormItem label="举办周期"
-                             name="monthRange"
-                  >
-                    <TDateRangePicker
-                      v-model="basicInfo.data.monthRange"
-                      mode="month"
-                    />
-                  </TFormItem>
-                  <TFormItem help="赛事默认公开。如果您是企业内部赛事，可以将其在这里隐藏（专业版特供功能）"
-                             label="私密赛事"
-                             name="hidden"
-                  >
-                    <VSubLock category="专业版">
-                      <div class="flex items-center space-x-2">
-                        <TSwitch v-model="basicInfo.data.hidden"
-                                 size="large"
-                        >
-                          <template #label="slotProps">
-                            <template v-if="slotProps.value">
-                              隐藏
-                            </template>
-                            <template v-else>
-                              公开
-                            </template>
-                          </template>
-                        </TSwitch>
-                        <VProTag />
-                      </div>
-                    </VSubLock>
                   </TFormItem>
 
                   <div class="mt-5 sm:mt-6">
@@ -206,7 +153,7 @@ const formSubmit = useThrottleFn((value) => {
                       type="submit"
                     >
                       <DocumentPlusIcon class="mr-1 h-5 w-5" />
-                      创建
+                      发起
                     </TButton>
                   </div>
                 </TForm>

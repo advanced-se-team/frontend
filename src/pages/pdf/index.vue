@@ -101,17 +101,14 @@ wx.checkJsApi({
 </script>
 
 <template>
-  <div class="w-full sm:max-w-3xl sm:mx-auto space-y-6 pb-10">
-    <VSheet v-if="shouldShowSubscribe">
+  <div class="w-full flex flex-row space-x-6 pb-10">
+    <VSheet class="flex-grow">
       <div class="rounded-t-xl border-b border-gray-200 bg-white p-4 sm:p-6">
         <div
             class="flex flex-row items-center text-xl font-semibold leading-6 text-gray-900 space-x-2"
         >
-          <div>课表订阅</div>
+          <div>论文阅读器</div>
         </div>
-        <p class="mt-2 text-sm text-gray-500 leading-6">
-          请跟随提示添加订阅。
-        </p>
       </div>
       <div class="p-6" v-if="isWechat">
         <p class="pb-0 mb-0">您正从<span class="text-green-600">微信</span>打开：</p>
@@ -169,20 +166,15 @@ wx.checkJsApi({
         </div>
       </div>
     </VSheet>
-    <VSheet>
+    <VSheet class="flex-shrink">
       <div class="rounded-t-xl border-b border-gray-200 bg-white p-4 sm:p-6">
         <div
             class="flex flex-row items-center text-xl font-semibold leading-6 text-gray-900 space-x-2"
         >
-          <div>SEP邮箱&密码维护</div>
+          <div>论文知音</div>
         </div>
         <p class="mt-2 text-sm text-gray-500 leading-6">
-          需知： <br>
-          1. 本软件不明文存储或传输您的密码：您的密码将在浏览器中先进行一次RSA加密，随后将加密后的密码传输到服务器。后台看不到密码是什么，您的密码也不会明文在网络上传输。<br>
-          2. 您的所有数据不会经过开发者的任何服务器，而是直接加密存储在第三方供应商leancloud的服务器中，leancloud为知乎、懂球帝等提供数据服务，安全性有保障。<br>
-          3. SEP不定期抽风，会导致查询不到。如果反复刷新都没有出现订阅链接，请等待1-2小时再次绑定。<br>
-          4. 课程表 <span class="text-red-500">不会自动更新</span>，所以如果换了课，请务必重新绑定一次，绑定时会刷新课表。<br>
-          5. 小于向你问好qwqq希望你今天过得顺利、愉快！
+          使用LLM来加快论文阅读速度 <br>
         </p>
       </div>
       <div class="p-6">
@@ -243,18 +235,6 @@ wx.checkJsApi({
           </div>
         </TForm>
       </div>
-    </VSheet>
-    <VSheet class="p-6">
-      <p>
-
-        本项目使用了以下开源代码的部分：<br>
-        作者barryZZJ：https://github.com/barryZZJ/ucas_course_to_calendar<br>
-        作者A-Stupid-Sun: https://github.com/A-Stupid-Sun/Enroll-helper<br>
-        作者amefumi：https://github.com/A-Stupid-Sun/Enroll-helper<br>
-        作者LyleMi：https://github.com/LyleMi/ucas<br>
-        <br>
-        感谢这几位开源开发者们的工作！
-      </p>
     </VSheet>
   </div>
 </template>
