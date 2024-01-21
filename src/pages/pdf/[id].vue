@@ -11,7 +11,7 @@ import {MdPreview, MdCatalog} from "md-editor-v3";
 import 'md-editor-v3/lib/preview.css';
 
 useMeta({
-  title: '课表订阅',
+  title: '读读论文',
   htmlAttrs: { lang: 'zh', amp: true },
 });
 const filePath = ref("")
@@ -119,20 +119,7 @@ const isPDFReader = ref(true);
           使用LLM来加快论文阅读速度 <br>
         </p>
       </div>
-      <div class="p-6"
-           v-if="!AV.User.current()">
-        <TButton
-            class="w-full mb-3"
-            @click="router.push('/auth/login?re=1')"
-            theme="warning"
-        >
-          请先点此登录
-        </TButton>
-        <p class="text-sm pb-5 text-gray-500 pl-5">友情提示：您也可以用电脑打开本链接，手机扫码登录。信息是同步的。</p>
-      </div>
-      <div v-else  class="list-disc lllst"  >
-<!--        <TButton>点击切换为pdf阅读</TButton>-->
-
+      <div class="list-disc lllst"  >
         <MdPreview preview-theme="vuepress" :model-value="markdownOutline"></MdPreview>
       </div>
     </VSheet>
@@ -154,6 +141,4 @@ const isPDFReader = ref(true);
 <route lang="yaml">
 meta:
   layout: with-navbar
-  heading: 我的赛事
-  description: 在本页面是您使用过或创建的赛事，可以在这里编辑、分享、计时它们。进行一场计时？直接点击“计时”。
 </route>

@@ -1,96 +1,52 @@
 <script setup>
 
 import VSheet from "@/components/VSheet.vue";
-import VProTag from "@/components/VProTag.vue";
 import {DocumentPlusIcon} from "@heroicons/vue/24/outline";
-import VSubLock from "@/components/VSubLock.vue";
 import {useRouter} from "vue-router";
 import AV from "leancloud-storage/live-query";
-import {toNumber, toString} from "lodash-es";
-import {useClipboard, useThrottleFn} from "@vueuse/core";
-import { JSEncrypt } from 'jsencrypt'
 import {useMeta} from "vue-meta";
+
 const router = useRouter();
-const createForm = ref(null);
-const rules = reactive({
-  email: [
-    {
-      required: true, message: '邮箱必填', type: 'error', trigger: 'blur',
-    },
-  ],
-  password: [
-    {
-      required: true, message: '密码必填', type: 'error', trigger: 'blur',
-    },
-  ],
-});
-
 const isDisabled = ref(false);
-const formSubmit = useThrottleFn((value) => {
-  if(!AV.User.current()) {
-    router.push('/auth/login?re=1');
-  }
-  if (value.validateResult === true) {
-    isDisabled.value = true;
-    AV.Cloud.run('bindSEPInfo',{
-      email: basicInfo.data.email,
-      password: rsaPass.value,
-    }).then((res)=>{
-      console.log(res);
-      router.push('/');
-    }).catch((err)=>{
-      console.log(err);
-      alert(err.message);
-    })
-  } else {
-    return false;
-  }
-
-  return true;
-}, 2000);
 
 useMeta({
-  title: '课表订阅',
-  htmlAttrs: { lang: 'zh', amp: true },
+  title: '读读论文',
+  htmlAttrs: {lang: 'zh', amp: true},
 });
-const rsaPass = computed(()=>{
-  if(basicInfo.data.password === '') {
-    return '等待输入中……'
-  }
-  const r = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxG1zt7VW/VNk1KJC7AuoInrMZKTf0h6S6xBaROgCz8F3xdEIwdTBGrjUKIhIFCeDr6esfiVxUpdCdiRtqaCS9IdXO+9Fs2l6fx6oGkAA9pnxIWL7bw5vAxyK+liu7BToMFhUdiyRdB6erC1g/fwDVBywCWhY4wCU2/TSsTBDQhuGZzy+hmZGEB0sqgZbbJpeosW87dNZFomn/uGhfCDJzswjS/x0OXD9yyk5TEq3QEvx5pWCcBJqAoBfDDQy5eT3RR5YBGDJODHqW1c2OwwdrybEEXKI9RCZmsNyIs2eZn1z1Cw1AdR+owdXqbJf9AnM3e1CN8GcpWLDyOnaRymLgQIDAQAB";
-  const encrypt = new JSEncrypt()
-  encrypt.setPublicKey(r);
-  return encrypt.encrypt(basicInfo.data.password);
-})
-const basicInfo = reactive({
-  data: {
-    email: '',
-    password: '',
-  },
+
+const currentPagination = ref(1);
+const searchResult = reactive({
+  count: 0,
+  data: [],
 });
-const shouldShowSubscribe = ref(false)
-const subscribeUrl = ref('sss')
-const subscribeUrlRaw = ref('sss')
-onMounted(()=>{
-  if(!AV.User.current()) {
-    return ;
-  }
-  const ucas_course = new AV.Query('UCAS_CourseCalendar')
-  ucas_course.equalTo('user',AV.User.current())
-  ucas_course.include('course_ics')
-  ucas_course.find().then((res)=>{
-    console.log(res);
-    if(res.length !== 0) {
-      const cr = res[0]
-      shouldShowSubscribe.value = true
-      subscribeUrl.value = `webcal://ucas-engine.puluter.cn/cal/${cr.get('objectId')}`
-      subscribeUrlRaw.value = `https://ucas-engine.puluter.cn/cal/${cr.get('objectId')}`
-    }
-  }).catch((err)=>{
-    console.log(err);
-  })
+
+
+const onCurrentChange = () => {
+  startSearch((currentPagination.value - 1) * 10);
+};
+
+const startSearch = async (skip) => {
+  const query = new AV.Query('ReadPaper_Paper');
+  query.limit(10);
+  query.skip(skip);
+  query.descending('updatedAt');
+  const res = await query.find();
+  searchResult.count = await query.count();
+  searchResult.data = res.map((item) => {
+    const filename = item.get('pdf').get('name');
+    const stillProcessing = (item.get('LLMContent') === undefined) + (item.get('pdfContent') === undefined);
+    return {
+      id: item.id,
+      paperName: filename,
+      stillProcessing,
+    };
+  });
+};
+
+const papers = ref([{}, {}, {}])
+onMounted(() => {
+  startSearch(0)
 })
-const { copy, copied, isSupported } = useClipboard({ source: subscribeUrl });
 const isWechat = ref(false)
 wx.checkJsApi({
   jsApiList: ['chooseImage'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
@@ -98,11 +54,34 @@ wx.checkJsApi({
     isWechat.value = true
   },
 });
+const uploadRef = ref(null);
+
+const uploadImg = async (file) => {
+  const {name} = file;
+  const avFile = new AV.File(name, file.raw);
+
+  const fileSaved = await avFile.save({
+    onprogress: (progress) => {
+      uploadRef.value.uploadFilePercent({file, percent: progress.percent});
+    },
+  });
+
+  const Paper = AV.Object.extend('ReadPaper_Paper');
+  const paper = new Paper();
+  paper.set('pdf', fileSaved);
+  await paper.save();
+
+  AV.Cloud.run('LLMOutline', {
+    paperId: paper.id,
+  })
+  alert('上传成功！正在后台处理中，请4~5分钟后请返回界面。')
+};
+
 </script>
 
 <template>
-  <div class="w-full flex flex-row space-x-6 pb-10">
-    <VSheet class="flex-grow">
+  <div class="w-full flex flex-row space-x-6 pb-10 grid grid-cols-12">
+    <VSheet class="col-span-8">
       <div class="rounded-t-xl border-b border-gray-200 bg-white p-4 sm:p-6">
         <div
             class="flex flex-row items-center text-xl font-semibold leading-6 text-gray-900 space-x-2"
@@ -110,63 +89,37 @@ wx.checkJsApi({
           <div>论文阅读器</div>
         </div>
       </div>
-      <div class="p-6" v-if="isWechat">
-        <p class="pb-0 mb-0">您正从<span class="text-green-600">微信</span>打开：</p>
-        <div class="items-center">
-          ①第一步：
-          <TButton v-if="isSupported"
-                   size="small"
-                   theme="success"
-                   variant="outline"
-                   @click="copy(subscribeUrl)"
-          >
-            {{ copied?'复制成功！':'点此复制' }}
-          </TButton>
-          <br>
-          ②第二步：粘贴到任意其他浏览器打开（ios-safari等，安卓-任意浏览器）
+      <div class="p-6 flex flex-col space-y-2">
+        <div v-for="paper in searchResult.data">
+          <div class="flex flex-row items-center space-x-2 p-4 rounded-xl shadow-card border-[1px]">
+            <DocumentPlusIcon class="w-6 h-6 text-gray-400"/>
+            <div class="flex-grow">
+              <div class="text-lg font-semibold">
+                {{ paper.paperName }}
+              </div>
+            </div>
+            <div class="flex flex-row items-center space-x-2 flex-shrink-0">
+              <TButton theme="success" variant="outline" @click="router.push(`/pdf/${paper.id}`)"
+                       :disabled="paper.stillProcessing > 0"
+                       :loading="paper.stillProcessing > 0"
+
+              >
+                {{ paper.stillProcessing > 0 ? `处理中(${paper.stillProcessing}/2)` : '阅读' }}
+              </TButton>
+            </div>
+          </div>
         </div>
-        <TDivider>或</TDivider>
-        如果您使用第三方日历软件：
-        复制以下的链接，手动添加到您的日历软件
-        <div class="select-all w-full bg-gray-100 shadow-inner rounded-md p-3 mt-2 break-words text-center">
-          {{subscribeUrlRaw}}
-        </div>
-      </div>
-      <div class="p-6" v-else>
-        <p class="pb-0 mb-0">如果您从<span class="text-green-600">微信</span>打开：</p>
-        <div class="items-center">
-          ①第一步：
-          <TButton v-if="isSupported"
-                   size="small"
-                   theme="success"
-                   variant="outline"
-                   @click="copy(subscribeUrl)"
-          >
-            {{ copied?'复制成功！':'点此复制' }}
-          </TButton>
-          <br>
-          ②第二步：粘贴到任意其他浏览器打开（ios-safari等，安卓-任意浏览器）
-        </div>
-        <TDivider>或</TDivider>
-        如果您使用macbook或ipad，且目前从浏览器打开：
-        <TButton
-            as="a"
-            :href="subscribeUrl"
-            size="small"
-            theme="success"
-            variant="outline"
-        >
-          直接点此添加订阅
-        </TButton>
-        <TDivider>或</TDivider>
-        如果您使用第三方日历软件：
-        复制以下的链接，手动添加到您的日历软件
-        <div class="select-all w-full bg-gray-100 shadow-inner rounded-md p-3 mt-2 break-words text-center">
-          {{subscribeUrlRaw}}
-        </div>
+
+        <TPagination
+            v-model="currentPagination"
+            page-size="10"
+            :page-size-options="[]"
+            :total="searchResult.count"
+            @current-change="onCurrentChange"
+        />
       </div>
     </VSheet>
-    <VSheet class="flex-shrink">
+    <VSheet class="col-span-4">
       <div class="rounded-t-xl border-b border-gray-200 bg-white p-4 sm:p-6">
         <div
             class="flex flex-row items-center text-xl font-semibold leading-6 text-gray-900 space-x-2"
@@ -174,66 +127,37 @@ wx.checkJsApi({
           <div>论文知音</div>
         </div>
         <p class="mt-2 text-sm text-gray-500 leading-6">
-          使用LLM来加快论文阅读速度 <br>
+          上传一篇论文 <br>
         </p>
       </div>
-      <div class="p-6">
-        <TButton
-            v-if="!AV.User.current()"
-            class="w-full mb-3"
-            @click="router.push('/auth/login?re=1')"
-            theme="warning"
-        >
-          请先点此登录
-        </TButton>
-        <p class="text-sm pb-5 text-gray-500 pl-5">友情提示：您也可以用电脑打开本链接，手机扫码登录。信息是同步的。</p>
-        <TForm ref="createForm"
-               :data="basicInfo.data"
-               :rules="rules"
-               @submit="formSubmit"
-        >
-          <TFormItem label="SEP邮箱"
-                     name="email"
-          >
-            <TInput
-                id="email"
-                v-model="basicInfo.data.email"
-                name="email"
-                autocomplete="username"
-                placeholder="...@mails.ucas.ac.cn"
-                type="text"
-            />
-          </TFormItem>
-          <TFormItem label="SEP密码"
-                     name="password"
-          >
-            <TInput
-                id="password"
-                v-model="basicInfo.data.password"
-                aria-describedby="password"
-                name="password"
-                placeholder="请输入密码"
-                type="password"
-                autocomplete="current-password"
-            />
-          </TFormItem>
+      <div class="p-6 flex flex-col items-center space-y-4">
+        <div
+            v-if="!AV.User.current()">
 
-          <div>您的密码经RSA加密后：（我们会向服务器上传此值）</div>
-          <div class="mt-2 p-4 shadow-inner bg-gray-100 break-words rounded-md">
-            {{rsaPass}}
+            <TButton @click="router.push('/auth/login?retry=1')">点此登录</TButton>
+          <div>
+            需要登录才能上传论文（微信扫码）；阅读论文点击左侧即可。
           </div>
+        </div>
+        <div v-else>
 
-          <div class="mt-5 sm:mt-6">
-            <TButton
-                :disabled="!AV.User.current()"
-                :loading="isDisabled"
-                class="w-full"
-                type="submit"
-            >
-              {{!isDisabled?'绑定以上用户名密码':'请等待30秒左右后刷新页面'}}
-            </TButton>
+          <TUpload
+              :disabled="!AV.User.current()"
+              ref="uploadRef"
+              :locale="{
+                      triggerUploadText: {
+                        image: '上传一篇论文',
+                      },
+                    }"
+              :request-method="uploadImg"
+              accept=".pdf"
+              auto-upload
+          />
+
+          <div>
+            上传论文后会自动解析。
           </div>
-        </TForm>
+        </div>
       </div>
     </VSheet>
   </div>
@@ -247,6 +171,4 @@ wx.checkJsApi({
 <route lang="yaml">
 meta:
   layout: with-navbar
-  heading: 我的赛事
-  description: 在本页面是您使用过或创建的赛事，可以在这里编辑、分享、计时它们。进行一场计时？直接点击“计时”。
 </route>
