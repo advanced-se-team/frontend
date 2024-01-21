@@ -90,7 +90,7 @@ const isPDFReader = ref(true);
 </script>
 
 <template>
-  <div class="w-full grid grid-cols-12 space-x-6 pb-10">
+  <div class="w-full flex sm:grid sm:grid-cols-12 sm:space-x-6 pb-10 flex-col-reverse">
     <VSheet class="col-span-6">
       <div class="rounded-t-xl border-b border-gray-200 bg-white p-4 sm:p-6">
         <div

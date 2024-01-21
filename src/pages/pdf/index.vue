@@ -80,8 +80,8 @@ const uploadImg = async (file) => {
 </script>
 
 <template>
-  <div class="w-full flex flex-row space-x-6 pb-10 grid grid-cols-12">
-    <VSheet class="col-span-8">
+  <div class="w-full flex flex-col-reverse sm:space-x-6 pb-10 sm:grid sm:grid-cols-12">
+    <VSheet class="col-span-8 mt-4 sm:mt-0">
       <div class="rounded-t-xl border-b border-gray-200 bg-white p-4 sm:p-6">
         <div
             class="flex flex-row items-center text-xl font-semibold leading-6 text-gray-900 space-x-2"
